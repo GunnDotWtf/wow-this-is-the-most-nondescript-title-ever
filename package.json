@@ -1,0 +1,30 @@
+{
+  "name": "gunn-web-app",
+  "version": "1.0.0",
+  "description": "ugwa",
+  "type": "module",
+  "main": "build.js",
+  "author": "l'shep",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.9",
+    "colors": "^1.4.0",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "clean-css": "^4.2.3",
+    "html-minifier": "^3.5.21",
+    "prettier-standard": "^15.0.1",
+    "rollup": "^2.47.0",
+    "uglify-es": "^3.3.9",
+    "uglify-js": "^3.13.6"
+  },
+  "scripts": {
+    "build": "node build.js && prettier-standard js/languages/example.json",
+    "check-l10n": "node js/languages/check-l10n.js",
+    "format": "prettier-standard --format --lint",
+    "inc-sw": "node js/inc-sw.js",
+    "newpsa": "node psa/new-psa.js",
+    "update-clubs": "node js/get-clubs.js",
+    "update-staff": "node js/get-staff.js"
+  }
+}

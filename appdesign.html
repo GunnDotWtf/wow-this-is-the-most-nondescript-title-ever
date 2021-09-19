@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns#" class="app-animate-in">
+  <head>
+    <title>Unofficial Gunn Web App (UGWA)</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript">
+      window.errorLogger = null
+      window.logError = function (errorText) {
+        if (!window.errors) {
+          window.errors =
+            '[!] If this covers your screen, then UGWA has crashed! Please send a screenshot or copy and paste this error to seanthesheep22+gwa@outlook.com\n'
+        }
+        window.errors += '\n' + errorText
+        if (window.errorLogger) window.errorLogger.value = window.errors
+        if (typeof errorText !== 'string' || errorText.slice(0, 3) !== '[!]') {
+          console.error('[BIG WUCKY]\n' + errorText)
+        }
+      }
+      if (window.addEventListener) {
+        window.addEventListener(
+          'error',
+          function (e) {
+            if (e.message) {
+              window.logError(
+                e.error &&
+                  e.error.stack &&
+                  e.message.indexOf('Uncaught SyntaxError') !== 0
+                  ? e.error.stack
+                  : e.message +
+                      ' at ' +
+                      e.filename +
+                      ':' +
+                      e.lineno +
+                      ':' +
+                      e.colno
+              )
+            } else {
+              window.logError(
+                'Problem loading ' + (e.target.src || e.target.href)
+              )
+            }
+            window.onerror = null
+          },
+          true
+        )
+        window.addEventListener(
+          'unhandledrejection',
+          function (e) {
+            window.logError(
+              e.reason && (e.reason.stack || e.reason.message || e.reason)
+            )
+          },
+          false
+        )
+      }
+      window.onerror = function (message, source, lineno, colno, error) {
+        if (colno) {
+          lineno += ':' + colno
+        }
+        window.logError(
+          error && error.stack
+            ? error.stack
+            : message + ' at ' + source + ':' + lineno
+        )
+      }
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.addEventListener('message', function (e) {
+          if (e.data.error) {
+            window.logError(e.data.error)
+          }
+        })
+      }
+    </script>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="favicon/manifest.json" />
+    <link
+      rel="mask-icon"
+      href="favicon/safari-pinned-tab.svg"
+      color="#ff594c"
+    />
+    <link rel="shortcut icon" href="favicon/favicon.ico" id="favicon" />
+    <meta name="msapplication-config" content="favicon/browserconfig.xml" />
+    <meta name="theme-color" content="#ff594c" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta
+      name="description"
+      content="The Gunn HS schedule, including alternates, and a few other features. Serving Gunn students 2017–2021."
+    />
+    <meta property="og:title" content="UGWA" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://orbiit.github.io/gunn-web-app/" />
+    <meta
+      property="og:image"
+      content="https://orbiit.github.io/gunn-web-app/images/opengraph.png"
+    />
+    <meta
+      property="og:description"
+      content="The Gunn HS schedule, including alternates, and a few other features. Serving Gunn students 2017–2021."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="UGWA" />
+    <meta
+      name="twitter:description"
+      content="The Gunn HS schedule, including alternates, and a few other features. Serving Gunn students 2017–2021."
+    />
+    <meta
+      name="twitter:image"
+      content="https://orbiit.github.io/gunn-web-app/images/opengraph.png"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&family=Material+Icons&display=swap"
+      rel="stylesheet"
+    />
+    <!-- STYLES -->
+    <link rel="stylesheet" href="css/index.css" />
+    <!-- /STYLES -->
+    <!-- SCRIPTS -->
+    <script src="js/main.js" charset="utf-8" type="module"></script>
+    <!-- /SCRIPTS -->
+  </head>
+  <body>
+    <script type="text/javascript">
+      try {
+        // Dark by default
+        document.body.className =
+          localStorage.getItem('global.theme') ||
+          (window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark')
+      } catch (err) {
+        window.logError(err)
+      }
+    </script>
+    <!-- NOAPPDESIGN -->
+    <script type="module">
+      import { setCurrentTime } from './js/utils.js'
+      // setCurrentTime(() => new Date(2020, 2, 10, 13, 23).getTime())
+      // setCurrentTime(() => Date.now() + 1000 * 60 * 60 * 24 * 4.7)
+
+      /*
+      const start = Date.now()
+      const baseTime = new Date(2021, 7, 10, 13, 39, 54).getTime()
+      // const baseTime = new Date().getTime()
+      const speed = 1
+      setCurrentTime(() => {
+        return (Date.now() - start) * speed + baseTime
+      })
+      Object.assign(window, { start, baseTime, speed })
+      //*/
+      window.setCurrentTime = setCurrentTime
+
+      const betaBadge = document.createElement('span')
+      betaBadge.className = 'beta-badge'
+      betaBadge.textContent = 'versión beta'
+      document.body.appendChild(betaBadge)
+      document.head.appendChild(document.createElement('style')).innerHTML = `
+      .beta-badge {
+        text-transform: uppercase;
+        background-color: #3F51B5;
+        font-size: 10px;
+        font-weight: bold;
+        color: white;
+        position: fixed;
+        left: 10px;
+        bottom: 10px;
+        padding: 2px 5px;
+        border-radius: 2px;
+        z-index: 1000;
+        pointer-events: none;
+        letter-spacing: 1px;
+      }
+      `
+    </script>
+    <!-- /NOAPPDESIGN -->
+
+    <!-- Material icon codepoints: https://github.com/google/material-design-icons/blob/1ea7cb45a77b8b5979b12627b27a3999fbe4353a/iconfont/codepoints -->
+    <div id="footer">
+      <ul>
+        <li data-section="utilities" tabindex="0" class="footer-item">
+          <i class="material-icons">&#xE869;</i>
+          <span data-l10n="utilities"></span>
+        </li>
+        <li data-section="clubs" tabindex="0" class="footer-item">
+          <i class="material-icons">&#xE886;</i>
+          <span data-l10n="clubs"></span>
+        </li>
+        <li data-section="schedule" tabindex="0" class="footer-item">
+          <i class="material-icons">&#xE8B5;</i>
+          <span data-l10n="schedule"></span>
+        </li>
+        <li data-section="staff" tabindex="0" class="footer-item">
+          <i class="material-icons">&#xE7FB;</i>
+          <span data-l10n="staff"></span>
+        </li>
+        <li data-section="options" tabindex="0" class="footer-item">
+          <i class="material-icons">&#xE8B8;</i>
+          <span data-l10n="options"></span>
+        </li>
+        <li id="notif">
+          <span data-l10n="new-psa"
+            ><span id="new-psa-count" data-l10n-arg="count"></span
+          ></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="section utilities">
+      <div class="health-screening-subtitle-wrapper">
+        <a
+          class="material raised"
+          href="https://www.parentsquare.com/saml/pausd/init"
+          target="_blank"
+          data-l10n="health-screening/title"
+        ></a>
+        <p
+          class="health-screening-subtitle"
+          data-l10n="health-screening/subtitle"
+        ></p>
+      </div>
+
+      <h1 data-l10n="barcode"></h1>
+      <p data-l10n="barcode-desc">
+        <a
+          href="https://en.wikipedia.org/wiki/Code_39"
+          target="_blank"
+          data-l10n-arg="wikipedia"
+        ></a>
+      </p>
+      <ul id="barcode">
+        <li class="right">
+          <button
+            class="material"
+            id="addbarcode"
+            data-l10n="add-barcode"
+          ></button>
+        </li>
+      </ul>
+
+      <h1>
+        <span data-l10n="support"></span>
+        <span class="flex"></span>
+        <button class="material icon">
+          <i class="material-icons" id="hide-support">&#xe5ce;</i>
+        </button>
+      </h1>
+      <p class="secondary" data-l10n="sponsor"></p>
+      <ul class="material-list three-line short collapsible" id="support-list">
+        <li>
+          <span class="primary" data-l10n="s1a"></span>
+          <a href="sms:741-741" data-l10n="s1b"></a>
+          <span class="secondary" data-l10n="s1c"></span>
+        </li>
+        <li>
+          <span class="primary" data-l10n="s2a"></span>
+          <a href="tel:800-273-8256" data-l10n="s2b"></a>
+          <span class="secondary" data-l10n="s2c"></span>
+        </li>
+        <li>
+          <span class="primary" data-l10n="s3a"></span>
+          <a href="tel:855-278-4204" data-l10n="s3b"></a>
+          <span class="secondary" data-l10n="s3c"></span>
+        </li>
+        <li>
+          <span class="primary" data-l10n="s4a"></span>
+          <a href="tel:650-579-0350" data-l10n="s4b"></a>
+          <span class="secondary" data-l10n="s4c"></span>
+        </li>
+        <li>
+          <span class="primary" data-l10n="s5a"></span>
+          <a href="tel:408-379-9085" data-l10n="s5b"></a>
+          <span class="secondary" data-l10n="s5c"></span>
+        </li>
+        <li>
+          <span class="primary" data-l10n="s6a"></span>
+          <a href="tel:866-488-7386" data-l10n="s6b"></a>
+          <span class="secondary" data-l10n="s6c"></span>
+        </li>
+      </ul>
+
+      <h1 data-l10n="minscore"></h1>
+      <p data-l10n="current-grade">
+        <span class="percent-wrapper" data-l10n-arg="input">
+          <input type="text" id="current-grade" value="95.00" />
+          <span>%</span>
+        </span>
+      </p>
+      <p data-l10n="finals-worth">
+        <span class="percent-wrapper" data-l10n-arg="input">
+          <input type="text" id="finals-worth" value="15.00" />
+          <span>%</span>
+        </span>
+      </p>
+      <p data-l10n="min-grade">
+        <span class="percent-wrapper" data-l10n-arg="input">
+          <input type="text" id="minimum-grade" value="90.00" />
+          <span>%</span>
+        </span>
+      </p>
+      <p id="grade-output"></p>
+
+      <div>
+        <h1>
+          <span data-l10n="comm"></span>
+          <span class="flex"></span>
+          <a
+            href="https://sheep.thingkingland.app/interstud-comm/no-vowels"
+            target="_blank"
+            class="material chat-history"
+            data-l10n="prev-chats"
+          ></a>
+        </h1>
+        <textarea class="textarea" id="chat" readonly></textarea>
+        <button
+          class="material ripple-light raised"
+          id="open-chat"
+          data-l10n="open-chat"
+        ></button>
+        <div id="chatter">
+          <p class="send-msg-wrapper">
+            <input type="text" placeholder="..." id="msg-content" />
+            <button class="material" id="send" data-l10n="send"></button>
+          </p>
+          <p id="preview"></p>
+          <p data-l10n="msg-note"></p>
+        </div>
+      </div>
+
+      <h1 data-l10n="map"></h1>
+      <p class="center" id="maptoggle"></p>
+      <p data-l10n="image-instruct"><strong data-l10n-arg="for"></strong></p>
+      <p data-l10n="gmaps-instruct"><strong data-l10n-arg="for"></strong></p>
+      <img
+        src="images/newmap.min.png"
+        id="mapimage"
+        alt="The map image failed to load :("
+      />
+      <div id="mapgoogle"></div>
+    </div>
+
+    <div class="section clubs" id="section-club">
+      <h1 class="header-with-search">
+        <span data-l10n="club-list"></span>
+        <div class="search-wrapper">
+          <i class="material-icons">&#xE8B6;</i>
+          <div class="search-input"></div>
+          <button class="material icon clear-btn">
+            <i class="material-icons">&#xe14c;</i>
+          </button>
+        </div>
+      </h1>
+      <p data-l10n="clubs-disclaimer">
+        <a
+          href="https://docs.google.com/spreadsheets/d/1HUaNWegOIk972lGweoSuNcXtfX7XuGBTQU-gcTsvD9s/"
+          target="_blank"
+          data-l10n-arg="link"
+        ></a>
+        <a
+          href="https://docs.google.com/document/d/1WpmgjcuRaHqc1jOL19pTNlHNJM3pwsEYxjYU0fy511Q/"
+          target="_blank"
+          data-l10n-arg="doc-link"
+        ></a>
+      </p>
+      <div id="club-ads-wrapper">
+        <ul id="club-ads"></ul>
+        <div id="club-ad-wrapper">
+          <h1>
+            <span id="club-name"></span>
+            <button
+              class="material"
+              id="show-club-from-ad"
+              data-l10n="club-ad-more-info"
+            ></button>
+            <button class="material icon" id="close-club-ad">
+              <i class="material-icons">&#xe5cd;</i>
+            </button>
+          </h1>
+          <!-- https://stackoverflow.com/questions/27723423/youtube-iframe-embed-full-screen -->
+          <iframe
+            id="club-ad-viewer"
+            allowfullscreen="allowfullscreen"
+          ></iframe>
+        </div>
+      </div>
+      <ul class="material-list three-line short clickables list"></ul>
+      <div class="lists-enabled center">
+        <p data-l10n="lists-disabled"></p>
+        <button
+          class="material ripple-light raised"
+          data-l10n="turn-back-on"
+        ></button>
+      </div>
+    </div>
+
+    <div class="section schedule">
+      <span id="seconds"></span>
+
+      <span id="asgn-sec-ins-before-pt"></span>
+
+      <p class="center">
+        <button class="material icon" id="plihieraux">
+          <i class="material-icons">&#xE5CB;</i>
+        </button>
+        <button
+          class="material"
+          id="datepicker"
+          data-l10n="select-date"
+        ></button>
+        <button class="material icon" id="plimorgaux">
+          <i class="material-icons">&#xE5CC;</i>
+        </button>
+      </p>
+      <p class="center get-error" id="alternateerror"></p>
+      <div id="schedulewrapper">
+        <div id="swipe-preview" class="schedule-container"></div>
+      </div>
+
+      <div id="weekwrapper"></div>
+
+      <span id="asgn-sec-ins-after-pt"></span>
+
+      <h1 data-l10n="events"></h1>
+      <ul class="material-list two-line" id="events"></ul>
+      <insert-sheep></insert-sheep>
+    </div>
+
+    <div class="section staff" id="section-staff">
+      <h1 class="header-with-search">
+        <span data-l10n="staff-list"></span>
+        <div class="search-wrapper">
+          <i class="material-icons">&#xE8B6;</i>
+          <div class="search-input"></div>
+          <button class="material icon clear-btn">
+            <i class="material-icons">&#xe14c;</i>
+          </button>
+        </div>
+      </h1>
+      <p data-l10n="staff-disclaimer">
+        <a
+          href="https://gunn.pausd.org/connecting/staff-directory/"
+          target="_blank"
+          data-l10n-arg="link"
+        ></a>
+      </p>
+      <div class="watt-ad">
+        <h3>Why aren't you using WATT?</h3>
+        <p>
+          It has the up-to-date staff class schedules for the 2021&ndash;22
+          school year.
+        </p>
+        <a
+          target="_blank"
+          class="material-ripple-target material raised watt-link"
+          href="https://gunnwatt.web.app/"
+          >Switch to WATT</a
+        >
+      </div>
+
+      <ul class="material-list three-line short clickables list"></ul>
+      <div class="lists-enabled center">
+        <p data-l10n="lists-disabled"></p>
+        <button
+          class="material ripple-light raised"
+          data-l10n="turn-back-on"
+        ></button>
+      </div>
+    </div>
+
+    <div class="section options">
+      <h1>
+        <span data-l10n="announcements"></span>
+        <button class="material icon" id="prev-psa" disabled>
+          <i class="material-icons">&#xE5CB;</i>
+        </button>
+        <button class="material icon" id="next-psa" disabled>
+          <i class="material-icons">&#xE5CC;</i>
+        </button>
+        <button
+          class="material"
+          id="all-unread"
+          data-l10n="mark-psas-read"
+          style="display: none;"
+        >
+          <i class="material-icons" data-l10n-arg="icon">&#xe5dd;</i>
+        </button>
+        <span id="new-psa" data-l10n="new"></span>
+      </h1>
+      <div
+        class="material-card block-of-text"
+        id="psa"
+        data-l10n="loading"
+      ></div>
+
+      <p data-l10n="version">
+        <strong data-l10n-arg="version">{VERSION}</strong>
+      </p>
+
+      <h1 data-l10n="theme"></h1>
+      <div class="radios-wrapper">
+        <p class="radio-wrapper">
+          <input
+            type="radio"
+            name="theme"
+            value="light"
+            class="material-radio"
+          />
+          <label data-l10n="light-theme"></label>
+        </p>
+        <p class="radio-wrapper">
+          <input
+            type="radio"
+            name="theme"
+            value="dark"
+            class="material-radio"
+          />
+          <label data-l10n="dark-theme"></label>
+        </p>
+        <p class="radio-wrapper is-joke">
+          <input
+            type="radio"
+            name="theme"
+            value="neither"
+            class="material-radio"
+          />
+          <label data-l10n="neither-theme"></label>
+          <span class="joke-explanation" data-l10n="this-is-joke"></span>
+        </p>
+      </div>
+
+      <h1 data-l10n="time-formatting"></h1>
+      <div class="radios-wrapper">
+        <p class="radio-wrapper">
+          <input type="radio" name="hour" value="12" class="material-radio" />
+          <label data-l10n="12h"></label>
+        </p>
+        <p class="radio-wrapper">
+          <input type="radio" name="hour" value="24" class="material-radio" />
+          <label data-l10n="24h"></label>
+        </p>
+        <p class="radio-wrapper is-joke">
+          <input type="radio" name="hour" value="0" class="material-radio" />
+          <label data-l10n="no-hour"></label>
+          <span class="joke-explanation" data-l10n="this-is-joke"></span>
+        </p>
+      </div>
+
+      <h2 data-l10n="title-compact"></h2>
+      <div class="radios-wrapper">
+        <p class="radio-wrapper">
+          <input
+            type="radio"
+            name="format"
+            value="full"
+            class="material-radio"
+          />
+          <label data-l10n="units"></label>
+        </p>
+        <p class="radio-wrapper">
+          <input
+            type="radio"
+            name="format"
+            value="compact"
+            class="material-radio"
+          />
+          <label data-l10n="numbers"></label>
+        </p>
+      </div>
+      <p>
+        <label class="material-switch-wrapper">
+          <span class="material-switch" id="update-title" tabindex="0"></span>
+          <span data-l10n="update-title"></span>
+        </label>
+      </p>
+      <div class="center" style="display: none;">
+        <button
+          class="material ripple-light raised"
+          id="disable-lists"
+          data-l10n="disable-lists"
+        ></button>
+      </div>
+
+      <div class="periods-customisation-heading">
+        <h1 data-l10n="periods"></h1>
+        <p data-l10n="periods-desc"></p>
+      </div>
+      <a id="periodcustomisermarker"></a>
+      <p>
+        <label class="material-switch-wrapper">
+          <span class="material-switch" id="hide-preps" tabindex="0"></span>
+          <span data-l10n="hide-preps"></span>
+        </label>
+      </p>
+      <p>
+        <label class="material-switch-wrapper">
+          <span class="material-switch" id="allow-swipe" tabindex="0"></span>
+          <span data-l10n="allow-swipe"></span>
+        </label>
+      </p>
+      <!-- <p>
+        <label class="material-switch-wrapper">
+          <span class="material-switch" id="self" tabindex="0"></span>
+          <span data-l10n="show-self-toggle"></span>
+        </label>
+      </p> -->
+      <p>
+        <label class="material-switch-wrapper">
+          <span class="material-switch" id="show0" tabindex="0"></span>
+          <span data-l10n="show0"></span>
+        </label>
+      </p>
+      <p>
+        <label class="material-switch-wrapper">
+          <span class="material-switch" id="show-h" tabindex="0"></span>
+          <span data-l10n="show-h"></span>
+        </label>
+      </p>
+      <button class="material raised" id="edit-h" data-l10n="edit-h"></button>
+      <p data-l10n="open-link-before">
+        <span
+          class="material-dropdown"
+          id="link-time-before"
+          data-l10n-arg="time"
+        ></span>
+        <strong data-l10n-arg="emphasis"></strong>
+      </p>
+      <p>
+        <label class="material-switch-wrapper">
+          <span class="material-switch" id="use-iframe" tabindex="0"></span>
+          <span data-l10n="use-iframe"></span>
+        </label>
+      </p>
+
+      <h1 data-l10n="notifications"></h1>
+      <p data-l10n="notif-no-support" id="notif-not-supported"></p>
+      <p data-l10n="notif-time-before">
+        <span
+          class="material-dropdown"
+          id="notif-time-before"
+          data-l10n-arg="time"
+        ></span>
+      </p>
+      <p data-l10n="notif-send-test">
+        <button
+          class="material raised"
+          id="send-test-notif"
+          data-l10n-arg="button"
+        ></button>
+      </p>
+      <h2 data-l10n="bell"></h2>
+      <p data-l10n="bell-volume"></p>
+      <div class="bell-volume">
+        <button class="material icon" id="play-bell" data-l10n-arg="play">
+          <i class="material-icons">&#xe037;</i>
+        </button>
+        <span
+          class="material-dropdown"
+          id="bell-volume-marker"
+          data-l10n-arg="volume"
+        ></span>
+      </div>
+
+      <h1 data-l10n="assignments"></h1>
+      <p>
+        <label class="material-switch-wrapper">
+          <span
+            class="material-switch"
+            id="toggle-pd-add-asgn"
+            tabindex="0"
+          ></span>
+          <span data-l10n="toggle-pd-add-asgn"></span>
+        </label>
+      </p>
+
+      <h2 data-l10n="asgn-display"></h2>
+      <div class="radios-wrapper">
+        <p class="radio-wrapper">
+          <input
+            type="radio"
+            name="asgn-display"
+            value="before"
+            class="material-radio"
+          />
+          <label data-l10n="asgn-before"></label>
+        </p>
+        <p class="radio-wrapper">
+          <input
+            type="radio"
+            name="asgn-display"
+            value="after"
+            class="material-radio"
+          />
+          <label data-l10n="asgn-after"></label>
+        </p>
+        <p class="radio-wrapper is-joke">
+          <input
+            type="radio"
+            name="asgn-display"
+            value="none"
+            class="material-radio"
+          />
+          <label data-l10n="asgn-none"></label>
+          <span class="joke-explanation" data-l10n="this-is-joke"></span>
+        </p>
+      </div>
+
+      <h2 data-l10n="asgn-sort"></h2>
+      <div class="radios-wrapper">
+        <p class="radio-wrapper">
+          <input
+            type="radio"
+            name="asgn-sort"
+            value="chrono-primero"
+            class="material-radio"
+          />
+          <label data-l10n="asgn-chrono-primero"></label>
+        </p>
+        <p class="radio-wrapper">
+          <input
+            type="radio"
+            name="asgn-sort"
+            value="important-importance"
+            class="material-radio"
+          />
+          <label data-l10n="asgn-important-importance"></label>
+        </p>
+        <p class="radio-wrapper">
+          <input
+            type="radio"
+            name="asgn-sort"
+            value="aLgOriThMs"
+            class="material-radio"
+          />
+          <label data-l10n="asgn-algorithms"></label>
+        </p>
+      </div>
+
+      <div>
+        <h2 data-l10n="assync"></h2>
+        <p data-l10n="assync-desc"></p>
+      </div>
+      <div id="assync-auth-wrapper">
+        <div>
+          <div class="not-using-assync">
+            <p data-l10n="not-using-assync">
+              <button
+                class="material raised"
+                id="create-assync"
+                data-l10n-arg="create"
+              ></button>
+              <input
+                type="text"
+                id="join-assync-id"
+                class="notmaterial-input"
+                data-l10n-arg="id"
+              />
+              <button
+                class="material raised"
+                id="join-assync"
+                data-l10n-arg="join"
+              ></button>
+            </p>
+          </div>
+        </div>
+        <div class="using-assync">
+          <p data-l10n="using-assync">
+            <span id="assync-id" data-l10n-arg="id"></span>
+            <button
+              class="material raised"
+              id="leave-assync"
+              data-l10n-arg="leave"
+            ></button>
+          </p>
+        </div>
+        <div>
+          <p class="loading-assync" data-l10n="loading-assync"></p>
+        </div>
+      </div>
+
+      <h1 data-l10n="languages"></h1>
+      <div id="langs"></div>
+
+      <h1 data-l10n="transfer"></h1>
+      <p>
+        <button
+          class="material raised"
+          id="export-copy"
+          data-l10n="export-copy"
+        ></button>
+        <button
+          class="material raised"
+          id="export-file"
+          data-l10n="export-file"
+        ></button>
+      </p>
+      <textarea class="textarea" id="transfer-copypaste"></textarea>
+      <p data-l10n="import-file">
+        <input
+          type="file"
+          id="import-file"
+          accept="application/json"
+          data-l10n-arg="file"
+        />
+        <button
+          class="material raised"
+          id="import"
+          data-l10n-arg="import"
+        ></button>
+      </p>
+
+      <div class="block-of-text">
+        <h1 data-l10n="add-ugwa"></h1>
+        <p data-l10n="ios-instruct"><strong data-l10n-arg="name"></strong></p>
+        <p data-l10n="android-instruct">
+          <strong data-l10n-arg="name"></strong>
+        </p>
+        <p data-l10n="chrome-instruct">
+          <strong data-l10n-arg="name"></strong>
+        </p>
+        <p data-l10n="desktop-instruct">
+          <strong data-l10n-arg="name"></strong>
+        </p>
+
+        <h1 data-l10n="bugs"></h1>
+        <p data-l10n="report-bugs">
+          <a
+            href="https://github.com/Orbiit/gunn-web-app/issues/new"
+            target="_blank"
+            data-l10n-arg="gh"
+          ></a>
+          <a
+            href="mailto:seanthesheep22+gwa@outlook.com"
+            target="_blank"
+            data-l10n-arg="email"
+          ></a>
+        </p>
+        <p data-l10n="browsers"></p>
+
+        <h1 data-l10n="about"></h1>
+        <p data-l10n="intent"></p>
+        <p data-l10n="source">
+          <a
+            href="https://github.com/Orbiit/gunn-web-app"
+            target="_blank"
+            data-l10n-arg="github"
+          ></a>
+        </p>
+        <p data-l10n="other-versions">
+          <a
+            href="https://orbiit.github.io/gunn-web-app/schedule/"
+            target="_blank"
+            data-l10n-arg="gunn-schedule"
+          ></a>
+          <a
+            href="https://orbiit.github.io/gunn-web-app/lite/"
+            data-l10n-arg="ugwita"
+          ></a>
+          <a
+            href="https://orbiit.github.io/ugwa2/"
+            target="_blank"
+            data-l10n-arg="ugwa2"
+          ></a>
+          <a
+            href="https://orbiit.github.io/ugwisha/"
+            target="_blank"
+            data-l10n-arg="ugwisha"
+          ></a>
+        </p>
+        <p data-l10n="lonely"></p>
+        <p data-l10n="other-apps">
+          <a
+            href="https://itunes.apple.com/us/app/thegunnapp/id1141159201"
+            target="_blank"
+            data-l10n-arg="tga-ios"
+          ></a>
+          <a
+            href="https://play.google.com/store/apps/details?id=xyz.dchen.thegunnapp"
+            target="_blank"
+            data-l10n-arg="tga-android"
+          ></a>
+          <a
+            href="https://kach.github.io/bellhop/"
+            target="_blank"
+            data-l10n-arg="bellhop"
+          ></a>
+          <a
+            href="https://sordamente.github.io/nugwa/"
+            target="_blank"
+            data-l10n-arg="nugwa"
+          ></a>
+          <a
+            href="https://homeworkcentral.web.app/"
+            target="_blank"
+            data-l10n-arg="hw-central"
+          ></a>
+          <a
+            href="https://gunnwatt.web.app/"
+            target="_blank"
+            data-l10n-arg="ugwa-backend"
+          ></a>
+          <a
+            href="https://hwbounty.help/"
+            target="_blank"
+            data-l10n-arg="hwbounty"
+          ></a>
+        </p>
+
+        <h1 data-l10n="credits"></h1>
+        <p data-l10n="sean-creds">
+          <a
+            href="https://sheeptester.github.io/"
+            target="_blank"
+            data-l10n-arg="name"
+          ></a>
+        </p>
+        <p data-l10n="kevin-creds">
+          <a
+            href="https://github.com/ky28059/"
+            target="_blank"
+            data-l10n-arg="name"
+          ></a>
+        </p>
+        <p data-l10n="matthew-creds">
+          <a
+            href="https://mg27713.github.io/"
+            target="_blank"
+            data-l10n-arg="name"
+          ></a>
+        </p>
+        <p data-l10n="henry-creds">
+          <a
+            href="https://poolehenry.github.io/"
+            target="_blank"
+            data-l10n-arg="name"
+          ></a>
+        </p>
+        <p data-l10n="service-creds">
+          <a
+            href="https://www.google.com/"
+            target="_blank"
+            data-l10n-arg="search"
+          ></a>
+          <a
+            href="https://stackoverflow.com/"
+            target="_blank"
+            data-l10n-arg="so"
+          ></a>
+          <a
+            href="https://developer.mozilla.org/"
+            target="_blank"
+            data-l10n-arg="mdn"
+          ></a>
+        </p>
+        <p data-l10n="feature-based"></p>
+        <p data-l10n="material">
+          <a
+            href="https://material.io/"
+            target="_blank"
+            data-l10n-arg="link"
+          ></a>
+        </p>
+        <p data-l10n="ash-creds">
+          <a
+            href="https://ashvin-ranjan.github.io/"
+            target="_blank"
+            data-l10n-arg="name"
+          ></a>
+        </p>
+      </div>
+
+      <h1 data-l10n="control-centre"></h1>
+      <p data-l10n="control-centre-desc"></p>
+      <p class="center">
+        <button
+          class="material ripple-light raised"
+          id="reload"
+          data-l10n="reload"
+        ></button>
+        <button
+          class="material ripple-light raised"
+          id="trick-cache"
+          data-l10n="trick-cache"
+        ></button>
+        <button
+          class="material ripple-light raised"
+          id="kill-sw"
+          data-l10n="kill-sw"
+        ></button>
+      </p>
+
+      <h2 data-l10n="errors"></h2>
+      <span id="insert-error-log-here"></span>
+    </div>
+
+    <div id="info-staff" class="material-dialog dialog-hidden">
+      <h1 data-l10n="staff-name"></h1>
+      <div class="content"></div>
+      <div class="buttons">
+        <a class="material icon info-permalink"
+          ><i class="material-icons">&#xe157;</i></a
+        >
+        <button class="material red close" data-l10n="close"></button>
+      </div>
+    </div>
+
+    <div id="info-club" class="material-dialog dialog-hidden">
+      <h1 data-l10n="club-name"></h1>
+      <div class="content"></div>
+      <div class="buttons">
+        <a class="material icon info-permalink"
+          ><i class="material-icons">&#xe157;</i></a
+        >
+        <button class="material red" id="club-add-list"></button>
+        <button class="material red close" data-l10n="close"></button>
+      </div>
+    </div>
+
+    <div id="asgn-editor" class="material-dialog dialog-hidden">
+      <h1 data-l10n="edit-asgn"></h1>
+      <div class="content">
+        <textarea class="asgn-text-edit" id="asgn-content"></textarea>
+        <p data-l10n="asgn-period-date">
+          <span
+            class="material-dropdown"
+            id="period-drop"
+            data-l10n-arg="period"
+          ></span>
+          <button class="material" id="date" data-l10n-arg="date"></button>
+        </p>
+        <p data-l10n="category">
+          <span
+            class="material-dropdown"
+            id="cat-drop"
+            data-l10n-arg="category"
+          ></span>
+        </p>
+        <p class="importance" data-l10n="importance">
+          <button class="material" id="low-imp" data-l10n-arg="low"></button>
+          <button
+            class="material"
+            id="medium-imp"
+            data-l10n-arg="medium"
+          ></button>
+          <button class="material" id="high-imp" data-l10n-arg="high"></button>
+        </p>
+      </div>
+      <div class="buttons" data-l10n="asgn-buttons">
+        <button
+          class="material red"
+          id="asgn-delete"
+          data-l10n-arg="delete"
+        ></button>
+        <button
+          class="material red close"
+          id="asgn-cancel"
+          data-l10n-arg="cancel"
+        ></button>
+        <button
+          class="material red close"
+          id="asgn-save"
+          data-l10n-arg="save"
+        ></button>
+      </div>
+    </div>
+
+    <div id="h-editor" class="material-dialog dialog-hidden">
+      <h1 data-l10n="h-editor"></h1>
+      <div class="content" id="h-days"></div>
+      <div class="buttons">
+        <button class="material red close" data-l10n="ok"></button>
+      </div>
+    </div>
+
+    <div id="iframe-window" class="material-dialog dialog-hidden">
+      <h1>
+        <a id="iframe-title" target="_blank"
+          ><i class="material-icons">&#xe89e;</i></a
+        >
+      </h1>
+      <iframe class="content" id="iframe"></iframe>
+      <div class="buttons">
+        <button class="material red close" data-l10n="ok"></button>
+      </div>
+    </div>
+
+    <p id="no-audio" data-l10n="click-for-audio">
+      <i class="material-icons" data-l10n-arg="icon">&#xe7f6;</i>
+    </p>
+
+    <div class="ios-cover" id="ios-add-to-home-screen">
+      <div class="ios-dialog">
+        <h1 data-l10n="want-ugwa-normal"></h1>
+        <div class="ios-safari">
+          <p class="ios-small" data-l10n="safari-only"></p>
+          <p data-l10n="add-home">
+            <span
+              class="ios-img ios-share-icon"
+              data-l10n-arg="share-icon"
+            ></span>
+            <strong data-l10n-arg="add-home"></strong>
+            <span
+              class="ios-img ios-add-home"
+              data-l10n-arg="add-home-img"
+            ></span>
+            <span class="ios-add" data-l10n-arg="add"></span>
+          </p>
+        </div>
+        <div class="ios-not-safari">
+          <p data-l10n="use-safari"></p>
+        </div>
+        <div class="ios-button-div">
+          <button
+            class="material ripple-dark"
+            id="ios-no-thanks"
+            data-l10n="naw"
+          ></button>
+        </div>
+      </div>
+      <div class="ios-ok" data-l10n="heaucques"></div>
+    </div>
+
+    <div class="graduation-wrapper" id="graduation-wrapper">
+      <span
+        class="graduation-close-msg"
+        data-l10n="graduation/dismiss-msg"
+      ></span>
+      <div class="graduation">
+        <img
+          src="./images/grad.svg"
+          alt="Graduation cap"
+          class="graduation-image"
+        />
+        <h1 data-l10n="graduation/title"></h1>
+        <p data-l10n="graduation/subtitle">
+          <strong data-l10n-arg="more"
+            ><a
+              href="https://gist.github.com/SheepTester/4fe67533dee838a168811554bd3450d4#file-ugwa-goes-poof-md"
+              target="_blank"
+              data-l10n="graduation/more"
+            ></a
+          ></strong>
+        </p>
+        <p data-l10n="graduation/alt/title"></p>
+        <div id="alternatives"></div>
+        <p data-l10n="graduation/alt/new-app">
+          <a
+            href="https://discord.gg/Cx5DQSu"
+            target="_blank"
+            data-l10n-arg="discord"
+          ></a>
+          <a
+            href="https://github.com/Orbiit/gunn-web-app/issues/new?title=pls+add+app&body=we+made+a+new+schedule+app+for+Gunn+students+to+use.+please+consider+adding+it+to+the+list+of+modern+alternatives+to+UGWA%0A%0A-+here%27s+the+link+to+our+app%3A+https%3A%2F%2Fgunnapp.github.io%2Fgunn%2F%0A-+it+is+called+%60Legitimate+Gunn+App%60%0A-+the+app+description+should+be+%60Not+a+scam%21%21+100%25+real+and+asbestos-free%21%21%21%60%0A-+we+will+provide+a+16%3A9+image+to+use+as+the+thumbnail%2C+but+we+don%27t+then+you+may+feel+free+to+use+a+creative+commons+photo+of+a+chicken+or+smth%0A%0Athanks"
+            target="_blank"
+            data-l10n-arg="notify"
+          ></a>
+        </p>
+        <div id="grad-video-insert-point"></div>
+        <p>
+          <label class="material-switch-wrapper">
+            <span
+              class="material-switch"
+              id="suppress-grad"
+              tabindex="0"
+            ></span>
+            <span data-l10n="graduation/suppress"></span>
+          </label>
+        </p>
+        <button
+          class="material ripple-light raised"
+          id="close-grad"
+          data-l10n="graduation/close"
+        ></button>
+      </div>
+    </div>
+
+    <textarea
+      id="error-log"
+      class="error-log"
+      placeholder="Errors will be logged here."
+      required
+    ></textarea>
+    <noscript>
+      <textarea id="error-log" class="error-log" readonly required>
+Please turn on JavaScript for the Unofficial Gunn Web App to work.</textarea
+      >
+    </noscript>
+    <script type="text/javascript">
+      window.errorLogger = document.getElementById('error-log')
+      window.errorLogger.value = window.errors || ''
+    </script>
+  </body>
+</html>
