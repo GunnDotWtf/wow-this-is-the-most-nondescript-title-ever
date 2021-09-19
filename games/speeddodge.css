@@ -1,0 +1,14 @@
+.speeddodge {
+  border: 1px solid black;
+  touch-action: none;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.speeddodge-wrapper button {
+  touch-action: none;
+  user-select: none;
+}
+.speeddodge-wrapper ul {
+  max-height: 200px;
+  overflow: auto;
+}

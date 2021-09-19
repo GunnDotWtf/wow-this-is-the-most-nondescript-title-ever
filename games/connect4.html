@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Connect 3</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
+    <link rel="stylesheet" href="connect3.css">
+
+    <style>
+      html, body {
+        height: 100%;
+        width: 100%;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        font-size: 0;
+        background-color: #303030;
+        color: white;
+        font-family: 'Roboto', sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="connect3.js" charset="utf-8"></script>
+    <script type="text/javascript">
+document.body.appendChild(window.connect3().wrapper);
+    </script>
+  </body>
+</html>
