@@ -1,0 +1,22 @@
+[ { "name": "WATT"
+  , "description": "Responsive UGWA successor, no sign in necessary! Open sourced on GitHub here: https://github.com/GunnWATT/watt"
+  , "image": "./images/watt-resized.png"
+  , "url": "https://gunnwatt.web.app/"
+  }
+, { "name": "Homework Central"
+  , "description": "Basically UGWA, but young and energetic. Learning new things everyday!"
+  , "image": "./images/hc-temp.jpg"
+  , "url": "https://homeworkcentral.web.app/"
+  }
+, { "name": "Campus Central"
+  , "description": "Hate Schoology? Loved UGWA?\nThis is the app for you."
+  , "image": "./images/cc-temp.jpg"
+  , "url": "https://campuscentral.repl.co/"
+  }
+, { "name": "HWBounty"
+  , "description": "Harvested from the swamps of the Anuran Republic. Blessed by licensed frog wizards. Enhanced durability provided by eco-friendly enchantments."
+  , "image": "./images/hwbounty-temp.jpg"
+  , "url": "https://hwbounty.help/signup/gunn"
+  , "exclude": true
+  }
+]
